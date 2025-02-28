@@ -20,7 +20,7 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
         .map { list -> list.map { it.toModel() } }
 
 
-    suspend fun updateServiceStatus(service: Service) {
+    suspend fun updateService(service: Service) {
         serviceDao.updateService(service.toEntity())
     }
 

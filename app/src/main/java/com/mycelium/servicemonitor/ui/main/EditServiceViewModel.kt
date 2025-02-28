@@ -43,7 +43,7 @@ class EditServiceViewModel @Inject constructor(
         viewModelScope.launch {
             uiStateM.push(uiState.copy(saving = true))
             try {
-                repository.updateServiceStatus(service)
+                repository.updateService(service)
                 uiStateM.push(uiState.copy(success = true))
             } catch (e: Exception) {
                 uiStateM.push(uiState.copy(error = e.message ?: "Unknown error"))

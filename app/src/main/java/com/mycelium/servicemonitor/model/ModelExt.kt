@@ -11,6 +11,7 @@ fun ServiceEntity.toModel(): Service =
         body = this.body,      // new field conversion
         status = this.status,
         lastChecked = this.lastChecked,
+        lastSuccessfulCheck = this.lastSuccessfulCheck,
         archived = this.archived,
         position = this.position
     )
@@ -26,6 +27,7 @@ fun Service.toEntity(): ServiceEntity =
         body = this.body,      // new field conversion
         status = this.status,
         lastChecked = this.lastChecked,
+        lastSuccessfulCheck = this.lastSuccessfulCheck,
         archived = this.archived,
         position = this.position
     )

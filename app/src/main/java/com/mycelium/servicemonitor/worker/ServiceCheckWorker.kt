@@ -41,16 +41,18 @@ class ServiceCheckWorker @AssistedInject constructor(
             CheckMode.TCP_TLS -> checkTcpTls(service)
         }
 
-        // Update the service with new status and last checked timestamp.
-        repository.updateServiceStatus(
-            service.copy(
-                status = result,
-                lastChecked = System.currentTimeMillis()
-            ).let {
-                if (result == "ok") it.copy(lastSuccessfulCheck = System.currentTimeMillis())
-                else it
-            }
+        val updatedService = if (result == "ok") service.copy(
+            status = result,
+            lastSuccessfulCheck = System.currentTimeMillis(),
+            lastChecked = System.currentTimeMillis()
         )
+        else service.copy(
+            status = result,
+            lastChecked = System.currentTimeMillis()
+        )
+
+        // Update the service with new status and last checked timestamp.
+        repository.updateService(updatedService)
 
         if (result != "ok") {
             notificationHelper.showNotification(
