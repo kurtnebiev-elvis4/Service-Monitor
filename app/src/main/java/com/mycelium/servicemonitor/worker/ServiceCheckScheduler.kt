@@ -2,25 +2,20 @@ package com.mycelium.servicemonitor.worker
 
 import android.content.Context
 import android.util.Log
+import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mycelium.servicemonitor.model.Service
 import com.mycelium.servicemonitor.repository.ServiceRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,6 +26,9 @@ class ServiceCheckScheduler @Inject constructor(
     @ApplicationContext val context: Context,
     private val repository: ServiceRepository
 ) {
+    private val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
 
     fun scheduleAllServiceChecks() = GlobalScope.launch(Dispatchers.Default) {
         val services = repository.getAllServices()
@@ -45,7 +43,9 @@ class ServiceCheckScheduler @Inject constructor(
 
             val workRequest = PeriodicWorkRequestBuilder<ServiceCheckWorker>(
                 intervalMinutes, TimeUnit.MINUTES, 2, TimeUnit.MINUTES
-            ).setInputData(inputData)
+            )
+                .setConstraints(constraints)
+                .setInputData(inputData)
                 .build()
 
             // Use a unique work name per service (so that if the service changes, it replaces the old request).
@@ -75,6 +75,7 @@ class ServiceCheckScheduler @Inject constructor(
             .build()
 
         val workRequest = OneTimeWorkRequestBuilder<ServiceCheckWorker>()
+            .setConstraints(constraints)
             .setInputData(inputData)
             .build()
 

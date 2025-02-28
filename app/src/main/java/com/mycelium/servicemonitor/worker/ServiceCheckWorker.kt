@@ -50,7 +50,14 @@ class ServiceCheckWorker @AssistedInject constructor(
         )
 
         if (result != "ok") {
-            sendNotification(applicationContext, "Server is down: ${service.url}")
+            notificationHelper.showNotification(
+                applicationContext,
+                "Server Check",
+                "Server is down: ${service.url}",
+                serviceId
+            )
+        } else {
+            notificationHelper.cancelNotification(applicationContext, serviceId)
         }
 
         return Result.success()
@@ -107,11 +114,6 @@ class ServiceCheckWorker @AssistedInject constructor(
         } catch (e: Exception) {
             e.message.orEmpty()
         }
-
-
-    private fun sendNotification(context: Context, message: String) {
-        notificationHelper.showNotification(context, "Server Check", message)
-    }
 
     private fun parseTcpTlsUrl(tcpTlsUrl: String): Pair<String, Int> {
         // Example: tcp-tls://example.com:8443
