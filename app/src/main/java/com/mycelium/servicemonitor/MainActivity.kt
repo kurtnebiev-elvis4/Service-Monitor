@@ -14,18 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.mycelium.servicemonitor.ui.main.AddServiceScreen
 import com.mycelium.servicemonitor.ui.main.EditServiceScreen
 import com.mycelium.servicemonitor.ui.main.ServiceListScreen
 import com.mycelium.servicemonitor.ui.theme.ServiceMonitorTheme
-import com.mycelium.servicemonitor.worker.ServiceCheckWorker
 import common.CommonKeys
 import common.CommonKeys.REQUEST_CODE_POST_NOTIFICATIONS
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

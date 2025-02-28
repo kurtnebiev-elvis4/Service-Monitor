@@ -2,7 +2,6 @@ package com.mycelium.servicemonitor.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.room.util.copy
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mycelium.servicemonitor.model.Service
