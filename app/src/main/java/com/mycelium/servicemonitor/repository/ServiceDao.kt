@@ -29,5 +29,6 @@ interface ServiceDao {
     @Query("SELECT * FROM services WHERE id = :id LIMIT 1")
     suspend fun getServiceById(id: Int): ServiceEntity?
 
-
+    @Query("DELETE FROM services")
+    suspend fun deleteAllServices()
 }

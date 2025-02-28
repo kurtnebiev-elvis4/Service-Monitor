@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.mycelium.servicemonitor.NotificationHelper
 import com.mycelium.servicemonitor.model.Service
 import com.mycelium.servicemonitor.repository.ServiceRepository
+import common.CheckMode
 import common.parseHeaders
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -14,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
+
 
 @HiltWorker
 class ServiceCheckWorker @AssistedInject constructor(
@@ -31,7 +35,11 @@ class ServiceCheckWorker @AssistedInject constructor(
         val service = repository.getServiceById(serviceId) ?: return Result.failure()
 
         // Check the service (HTTP call).
-        val result = checkServer(service)
+        val mode = CheckMode.fromUrl(service.url)
+        val result = when (mode) {
+            CheckMode.HTTP, CheckMode.HTTPS -> checkHttp(service)
+            CheckMode.TCP_TLS -> checkTcpTls(service)
+        }
 
         // Update the service with new status and last checked timestamp.
         repository.updateServiceStatus(
@@ -48,7 +56,7 @@ class ServiceCheckWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun checkServer(service: Service): String =
+    private suspend fun checkHttp(service: Service): String =
         try {
             val url = URL(service.url)
             with(withContext(Dispatchers.IO) {
@@ -71,8 +79,39 @@ class ServiceCheckWorker @AssistedInject constructor(
             e.message.orEmpty()
         }
 
+    private suspend fun checkTcpTls(service: Service): String =
+        try {
+            withContext(Dispatchers.IO) {
+                val (host, port) = parseTcpTlsUrl(service.url)
+                // Create SSLSocket and connect
+                val sslSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
+                val sslSocket = sslSocketFactory.createSocket(host, port) as SSLSocket
+                sslSocket.use {
+                    // Start the TLS handshake
+                    it.startHandshake()
+                }
+            }
+            "ok"
+        } catch (e: Exception) {
+            e.message.orEmpty()
+        }
+
 
     private fun sendNotification(context: Context, message: String) {
         NotificationHelper.showNotification(context, "Server Check", message)
     }
+
+    private fun parseTcpTlsUrl(tcpTlsUrl: String): Pair<String, Int> {
+        // Example: tcp-tls://example.com:8443
+        // Remove prefix if it starts with tcp-tls://
+        val stripped = tcpTlsUrl.removePrefix("tcp-tls://")
+        // Split on : to get host and port
+        val parts = stripped.split(":")
+        val host = parts[0]
+        // If no port is specified, default to 443
+        val port = if (parts.size > 1) parts[1].toIntOrNull() ?: 443 else 443
+        return Pair(host, port)
+    }
 }
+
+

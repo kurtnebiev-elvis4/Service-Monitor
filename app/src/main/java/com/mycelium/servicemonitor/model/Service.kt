@@ -10,7 +10,7 @@ data class Service(
     val name: String,
     val url: String,
     val interval: Int,
-    val headers: String,
+    val headers: String = "",
 
 
     @KTransient val status: String = "",

@@ -12,7 +12,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ServiceDataImporter @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val json: Json
 ) {
     /**
      * Reads the JSON content from the provided Uri and returns a list of Service objects.
@@ -22,7 +23,7 @@ class ServiceDataImporter @Inject constructor(
             val inputStream = context.contentResolver.openInputStream(uri)
             val reader = BufferedReader(InputStreamReader(inputStream))
             val jsonString = reader.readText()
-            Json.decodeFromString<List<Service>>(jsonString)
+            json.decodeFromString<List<Service>>(jsonString)
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()

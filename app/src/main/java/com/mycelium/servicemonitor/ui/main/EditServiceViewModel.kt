@@ -1,6 +1,5 @@
 package com.mycelium.servicemonitor.ui.main
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,8 +10,8 @@ import common.WithUIStateManger
 import common.push
 import common.uiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class EditServiceUIState(
     val service: Service?,

@@ -4,8 +4,14 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.mycelium.servicemonitor.worker.ServiceCheckScheduler
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltAndroidApp
 class TheApplication : Application(), Configuration.Provider {
@@ -24,5 +30,21 @@ class TheApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         scheduler.scheduleAllServiceChecks()
+    }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object CoreModule {
+
+    @Provides
+    @Singleton
+    fun provideJson(): Json {
+        return Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            prettyPrint = false
+            // Configure other options as desired
+        }
     }
 }

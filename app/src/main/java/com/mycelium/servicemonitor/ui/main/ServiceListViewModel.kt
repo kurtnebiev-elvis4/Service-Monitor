@@ -4,12 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.mycelium.servicemonitor.model.Service
 import com.mycelium.servicemonitor.repository.ServiceRepository
-import com.mycelium.servicemonitor.worker.ServiceDataExporter
 import com.mycelium.servicemonitor.worker.ServiceCheckScheduler
+import com.mycelium.servicemonitor.worker.ServiceDataExporter
 import com.mycelium.servicemonitor.worker.ServiceDataImporter
 import common.UIStateManager
 import common.WithUIStateManger
@@ -63,13 +61,13 @@ class ServiceListViewModel @Inject constructor(
     }
 
     fun removeService(service: Service) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.removeService(service)
         }
     }
 
     fun archiveService(service: Service) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.archiveService(service)
         }
     }
@@ -87,9 +85,9 @@ class ServiceListViewModel @Inject constructor(
 
 
     fun importList(uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             val services = importer.importServices(uri)
-            services?.forEach { service ->
+            services.forEach { service ->
                 repository.insertService(service)
             }
             scheduler.scheduleAllServiceChecks()
@@ -98,5 +96,11 @@ class ServiceListViewModel @Inject constructor(
 
     fun checkService(it: Service) {
         scheduler.checkServiceNow(it)
+    }
+
+    fun removeAll() {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.removeAll()
+        }
     }
 }

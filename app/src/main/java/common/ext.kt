@@ -8,3 +8,20 @@ fun parseHeaders(headers: String): List<Pair<String, String>> {
         if (parts.size >= 2) Pair(parts[0].trim(), parts[1].trim()) else null
     }
 }
+
+enum class CheckMode {
+    HTTP,
+    HTTPS,
+    TCP_TLS;
+
+    companion object {
+        fun fromUrl(url: String): CheckMode =
+            when {
+                url.startsWith("http://") -> HTTP
+                url.startsWith("https://") -> HTTPS
+                url.startsWith("tcp-tls://") -> TCP_TLS
+                else -> throw IllegalArgumentException("Invalid URL format")
+            }
+
+    }
+}

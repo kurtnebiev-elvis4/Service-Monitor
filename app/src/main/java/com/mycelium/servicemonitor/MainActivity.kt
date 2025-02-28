@@ -66,8 +66,7 @@ fun MyAppNavHost(navController: NavHostController) {
         composable(
             "editService/{serviceId}",
             arguments = listOf(navArgument("serviceId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val serviceId = backStackEntry.arguments?.getInt("serviceId") ?: 0
+        ) {
             EditServiceScreen(
                 onServiceUpdated = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }

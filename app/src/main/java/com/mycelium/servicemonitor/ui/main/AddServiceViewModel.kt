@@ -3,14 +3,13 @@ package com.mycelium.servicemonitor.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mycelium.servicemonitor.model.Service
-import com.mycelium.servicemonitor.model.ServiceEntity
 import com.mycelium.servicemonitor.repository.ServiceRepository
 import common.UIStateManager
 import common.WithUIStateManger
 import common.uiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 data class AddServiceUIState(

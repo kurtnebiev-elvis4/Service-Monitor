@@ -108,6 +108,13 @@ fun ServiceListScreen(
                                 importLauncher.launch(arrayOf("application/json"))
                             }
                         )
+                        DropdownMenuItem(
+                            text = { Text("Remove All") },
+                            onClick = {
+                                menuExpanded = false
+                                viewModel.removeAll()
+                            }
+                        )
                     }
                 })
         },
