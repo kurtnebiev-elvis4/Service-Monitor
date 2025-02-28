@@ -32,10 +32,7 @@ class ServiceCheckScheduler @Inject constructor(
 
     fun scheduleAllServiceChecks() = GlobalScope.launch(Dispatchers.Default) {
         val services = repository.getAllServices()
-
-        // For each service, schedule an individual periodic worker.
-        services.forEach { service ->
-            // Use the service interval; ensure it's at least 15 minutes (the minimum for PeriodicWorkRequest).
+        services.filter { !it.archived }.forEach { service ->
             val intervalMinutes = service.interval.toLong().coerceAtLeast(15L)
             val inputData = Data.Builder()
                 .putInt("serviceId", service.id)
@@ -48,7 +45,6 @@ class ServiceCheckScheduler @Inject constructor(
                 .setInputData(inputData)
                 .build()
 
-            // Use a unique work name per service (so that if the service changes, it replaces the old request).
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "ServiceCheckWorker_${service.id}",
                 ExistingPeriodicWorkPolicy.UPDATE,
@@ -60,7 +56,7 @@ class ServiceCheckScheduler @Inject constructor(
     fun allServiceChecksNow() = GlobalScope.launch(Dispatchers.Default) {
         val services = repository.getAllServices()
         Log.e("ServiceCheckScheduler", "services = $services")
-        services.forEach { service ->
+        services.filter { !it.archived }.forEach { service ->
             check(service)
         }
     }
@@ -85,6 +81,4 @@ class ServiceCheckScheduler @Inject constructor(
             workRequest
         )
     }
-
-
 }

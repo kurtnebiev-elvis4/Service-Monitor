@@ -71,6 +71,11 @@ class ServiceListViewModel @Inject constructor(
             repository.archiveService(service)
         }
     }
+    fun unarchiveService(service: Service) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.unarchiveService(service)
+        }
+    }
 
     fun checkAllNow() {
         scheduler.allServiceChecksNow()

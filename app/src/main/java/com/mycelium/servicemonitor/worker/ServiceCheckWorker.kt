@@ -2,6 +2,7 @@ package com.mycelium.servicemonitor.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.room.util.copy
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mycelium.servicemonitor.model.Service
@@ -46,7 +47,10 @@ class ServiceCheckWorker @AssistedInject constructor(
             service.copy(
                 status = result,
                 lastChecked = System.currentTimeMillis()
-            )
+            ).let {
+                if (result == "ok") it.copy(lastSuccessfulCheck = System.currentTimeMillis())
+                else it
+            }
         )
 
         if (result != "ok") {

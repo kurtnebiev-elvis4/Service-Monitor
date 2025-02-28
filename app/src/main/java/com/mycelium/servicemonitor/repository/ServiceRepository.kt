@@ -49,6 +49,11 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
         serviceDao.updateService(archivedService.toEntity())
     }
 
+    suspend fun unarchiveService(service: Service) {
+        val archivedService = service.copy(archived = false)
+        serviceDao.updateService(archivedService.toEntity())
+    }
+
     suspend fun removeAll() {
         serviceDao.deleteAllServices()
     }

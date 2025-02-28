@@ -18,6 +18,7 @@ data class Service(
 
 
     @KTransient val status: String = "",
+    @KTransient val lastSuccessfulCheck: Long = 0L,
     @KTransient val lastChecked: Long = 0L,
     @KTransient val archived: Boolean = false
 

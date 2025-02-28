@@ -20,6 +20,8 @@ data class ServiceEntity(
 
     val status: String,
     val lastChecked: Long,
+    @ColumnInfo(defaultValue = "0")
+    val lastSuccessfulCheck: Long = 0L,
     val archived: Boolean = false,
     @ColumnInfo(defaultValue = "0")
     val position: Int = 0

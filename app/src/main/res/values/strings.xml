@@ -3,4 +3,5 @@
     <string name="last_check">Последняя проверка: %1$s</string>
     <string name="status">Статус: %1$s</string>
     <string name="check_interval">Интервал проверки: %1$s</string>
+    <string name="last_succesful_check">Последняя успешная проверка: %1$s</string>
 </resources>

@@ -54,7 +54,6 @@ import common.provideUIState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,13 +134,35 @@ fun ServiceListScreen(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            items(uiState.services) { service ->
+            items(uiState.services.filter { !it.archived }) { service ->
                 ServiceListItem(service,
                     onMoveUp = { viewModel.moveUp(it) },
                     onCheck = { viewModel.checkService(it) },
                     onEdit = { onEditServiceClick(it.id) },
                     onArchive = { viewModel.archiveService(it) },
+                    onUnarchive = { viewModel.unarchiveService(it) },
                     onRemove = { viewModel.removeService(it) })
+            }
+            val archivedServices = uiState.services.filter { it.archived }
+            if (archivedServices.isNotEmpty()) {
+                item {
+                    Spacer(
+                        Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(MaterialTheme.colorScheme.tertiary)
+                    )
+                }
+                items(uiState.services.filter { it.archived }) { service ->
+                    ServiceListItem(service,
+                        onMoveUp = { viewModel.moveUp(it) },
+                        onCheck = { viewModel.checkService(it) },
+                        onEdit = { onEditServiceClick(it.id) },
+                        onArchive = { viewModel.archiveService(it) },
+                        onUnarchive = { viewModel.unarchiveService(it) },
+                        onRemove = { viewModel.removeService(it) })
+                }
             }
             item {
                 Spacer(Modifier.height(64.dp))
@@ -157,6 +178,7 @@ fun ServiceListItem(
     onCheck: (Service) -> Unit,
     onEdit: (Service) -> Unit,
     onArchive: (Service) -> Unit,
+    onUnarchive: (Service) -> Unit,
     onRemove: (Service) -> Unit
 ) {
     // Maintain local state to toggle expanded details.
@@ -183,7 +205,9 @@ fun ServiceListItem(
                             .size(16.dp)
                             .clip(shape = MaterialTheme.shapes.small)
                             .background(
-                                color = if (service.status == "ok") Color.Green
+                                color =
+                                if (service.archived) Color.Gray
+                                else if (service.status == "ok") Color.Green
                                 else if (service.lastChecked == 0L) Color.Gray
                                 else Color.Red
                             )
@@ -206,35 +230,45 @@ fun ServiceListItem(
                         expanded = expandedItemMenu,
                         onDismissRequest = { expandedItemMenu = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Move up") },
-                            onClick = {
-                                expandedItemMenu = false
-                                onMoveUp(service)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Check") },
-                            onClick = {
-                                expandedItemMenu = false
-                                onCheck(service)
-                            }
-                        )
+                        if (!service.archived) {
+                            DropdownMenuItem(
+                                text = { Text("Move up") },
+                                onClick = {
+                                    expandedItemMenu = false
+                                    onMoveUp(service)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Check") },
+                                onClick = {
+                                    expandedItemMenu = false
+                                    onCheck(service)
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = { Text("Edit") },
-                            onClick = {
-                                expandedItemMenu = false
-                                onEdit(service)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Archive") },
-                            onClick = {
-                                expandedItemMenu = false
-                                onArchive(service)
-                            }
-                        )
+                            DropdownMenuItem(
+                                text = { Text("Edit") },
+                                onClick = {
+                                    expandedItemMenu = false
+                                    onEdit(service)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Archive") },
+                                onClick = {
+                                    expandedItemMenu = false
+                                    onArchive(service)
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = { Text("Unarchive") },
+                                onClick = {
+                                    expandedItemMenu = false
+                                    onUnarchive(service)
+                                }
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("Remove") },
                             onClick = {
@@ -262,12 +296,19 @@ fun ServiceListItem(
                     ),
                     style = MaterialTheme.typography.bodySmall
                 )
+                if (service.status != "ok") {
+                    Text(
+                        text = stringResource(
+                            R.string.last_succesful_check,
+                            formatTimestamp(service.lastSuccessfulCheck)
+                        ),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 Text(
                     text = stringResource(R.string.status, service.status),
                     style = MaterialTheme.typography.bodySmall
                 )
-
-                // Add any additional information here
             }
         }
     }

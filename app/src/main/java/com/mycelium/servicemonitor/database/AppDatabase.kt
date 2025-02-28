@@ -7,8 +7,8 @@ import com.mycelium.servicemonitor.model.ServiceEntity
 import com.mycelium.servicemonitor.repository.ServiceDao
 
 @Database(
-    entities = [ServiceEntity::class], version = 1, autoMigrations = [
-//        AutoMigration(from = 1, to = 2),
+    entities = [ServiceEntity::class], version = 2, autoMigrations = [
+        AutoMigration(from = 1, to = 2),
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
