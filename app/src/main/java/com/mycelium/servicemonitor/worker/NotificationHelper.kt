@@ -3,12 +3,16 @@ package com.mycelium.servicemonitor.worker
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.mycelium.servicemonitor.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,6 +65,7 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(smallIcon)
             .setContentTitle(title)
             .setContentText(message)
+            .setContentIntent(startIntent(context))
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(groupKey)
@@ -75,6 +80,7 @@ class NotificationHelper @Inject constructor(
                 NotificationCompat.InboxStyle()
                     .setSummaryText("Server status notifications")
             )
+            .setContentIntent(startIntent(context))
             .setContentTitle("Server Status")
             .setContentText("You have new notifications")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -88,6 +94,16 @@ class NotificationHelper @Inject constructor(
 
     fun cancelNotification(context: Context, notificationId: Int) {
         NotificationManagerCompat.from(context).cancel(notificationId)
+    }
+
+    private fun startIntent(context: Context) = TaskStackBuilder.create(context).run {
+        // Add the intent, which inflates the back stack.
+        addNextIntentWithParentStack(Intent(context, MainActivity::class.java))
+        // Get the PendingIntent containing the entire back stack.
+        getPendingIntent(
+            0,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     companion object {
