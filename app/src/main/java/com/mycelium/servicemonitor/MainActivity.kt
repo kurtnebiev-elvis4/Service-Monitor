@@ -1,10 +1,13 @@
 package com.mycelium.servicemonitor
 
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,6 +22,8 @@ import com.mycelium.servicemonitor.ui.main.EditServiceScreen
 import com.mycelium.servicemonitor.ui.main.ServiceListScreen
 import com.mycelium.servicemonitor.ui.theme.ServiceMonitorTheme
 import com.mycelium.servicemonitor.worker.ServiceCheckWorker
+import common.CommonKeys
+import common.CommonKeys.REQUEST_CODE_POST_NOTIFICATIONS
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
@@ -34,17 +39,36 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Периодическая работа: раз в 15 минут (минимально для PeriodicWorkRequest)
-        val serverCheckWorkRequest =
-            PeriodicWorkRequestBuilder<ServiceCheckWorker>(15, TimeUnit.MINUTES)
-                .build()
+        requestNotificationPermission()
+    }
 
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork(
-                "ServerCheckWork",
-                ExistingPeriodicWorkPolicy.KEEP,
-                serverCheckWorkRequest
+    private fun requestNotificationPermission() {
+        // In your Activity's onCreate (or wherever appropriate)
+        if (ActivityCompat.checkSelfPermission(this, POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(POST_NOTIFICATIONS),
+                REQUEST_CODE_POST_NOTIFICATIONS
             )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        if (requestCode == CommonKeys.REQUEST_CODE_POST_NOTIFICATIONS) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                // Permission granted, you can now show notifications
+            } else {
+                // Permission denied; handle accordingly (show rationale or disable notification features)
+            }
+        }
     }
 }
 

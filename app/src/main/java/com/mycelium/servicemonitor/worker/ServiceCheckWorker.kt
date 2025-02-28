@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.mycelium.servicemonitor.NotificationHelper
 import com.mycelium.servicemonitor.model.Service
 import com.mycelium.servicemonitor.repository.ServiceRepository
 import common.CheckMode
@@ -23,7 +22,8 @@ import javax.net.ssl.SSLSocketFactory
 class ServiceCheckWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: ServiceRepository
+    private val repository: ServiceRepository,
+    private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -67,7 +67,19 @@ class ServiceCheckWorker @AssistedInject constructor(
                 }
                 connectTimeout = 5000
                 readTimeout = 5000
-                requestMethod = "GET"
+                requestMethod = service.method.ifEmpty { "GET" }.uppercase()
+                if (requestMethod in listOf(
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE"
+                    ) && service.body.isNotEmpty()
+                ) {
+                    doOutput = true
+                    outputStream.use { os ->
+                        os.write(service.body.toByteArray(Charsets.UTF_8))
+                    }
+                }
                 connect()
                 if (responseCode in 200..299) {
                     "ok"
@@ -98,7 +110,7 @@ class ServiceCheckWorker @AssistedInject constructor(
 
 
     private fun sendNotification(context: Context, message: String) {
-        NotificationHelper.showNotification(context, "Server Check", message)
+        notificationHelper.showNotification(context, "Server Check", message)
     }
 
     private fun parseTcpTlsUrl(tcpTlsUrl: String): Pair<String, Int> {

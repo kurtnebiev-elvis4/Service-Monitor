@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "434842a57e122c8fef111307b13917f7",
+    "identityHash": "5c77d6d7928a7a25306c58096b6e731c",
     "entities": [
       {
         "tableName": "services",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `url` TEXT NOT NULL, `interval` INTEGER NOT NULL, `headers` TEXT NOT NULL, `status` TEXT NOT NULL, `lastChecked` INTEGER NOT NULL, `archived` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `url` TEXT NOT NULL, `interval` INTEGER NOT NULL, `headers` TEXT NOT NULL, `method` TEXT NOT NULL DEFAULT '', `body` TEXT NOT NULL DEFAULT '', `status` TEXT NOT NULL, `lastChecked` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `position` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -39,6 +39,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "method",
+            "columnName": "method",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "body",
+            "columnName": "body",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
             "fieldPath": "status",
             "columnName": "status",
             "affinity": "TEXT",
@@ -55,6 +69,13 @@
             "columnName": "archived",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -70,7 +91,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '434842a57e122c8fef111307b13917f7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5c77d6d7928a7a25306c58096b6e731c')"
     ]
   }
 }

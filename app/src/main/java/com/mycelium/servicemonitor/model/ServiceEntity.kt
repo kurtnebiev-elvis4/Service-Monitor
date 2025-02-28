@@ -1,5 +1,6 @@
 package com.mycelium.servicemonitor.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,9 +11,17 @@ data class ServiceEntity(
     val name: String,
     val url: String,
     val interval: Int,
+
     val headers: String,
+    @ColumnInfo(defaultValue = "")
+    val method: String = "",
+    @ColumnInfo(defaultValue = "")
+    val body: String = "",
+
     val status: String,
     val lastChecked: Long,
-    val archived: Boolean = false
+    val archived: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val position: Int = 0
 )
 

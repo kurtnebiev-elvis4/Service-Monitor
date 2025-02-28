@@ -12,10 +12,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ServiceDataExporter @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val json: Json
 ) {
     fun exportServices(services: List<Service>) {
-        val jsonString = Json.encodeToString(services)
+        val jsonString = json.encodeToString(services)
         // Write JSON to a file in the app's cache directory.
         val fileName = "services_export.json"
         val file = File(context.cacheDir, fileName)

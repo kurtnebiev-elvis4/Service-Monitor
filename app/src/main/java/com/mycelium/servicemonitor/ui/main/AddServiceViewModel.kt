@@ -29,7 +29,10 @@ class AddServiceViewModel @Inject constructor(
 ) : ViewModel(), WithUIStateManger<AddServiceUIState> {
 
 
-    fun saveService(name: String, url: String, interval: Int, headers: String) {
+    fun saveService(
+        name: String, url: String, interval: Int,
+        headers: String, method: String, body: String
+    ) {
         viewModelScope.launch {
             uiStateM.push(uiState.copy(saving = true))
             try {

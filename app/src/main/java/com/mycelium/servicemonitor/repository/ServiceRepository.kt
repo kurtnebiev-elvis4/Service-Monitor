@@ -1,5 +1,6 @@
 package com.mycelium.servicemonitor.repository
 
+import android.util.Log
 import com.mycelium.servicemonitor.model.Service
 import com.mycelium.servicemonitor.model.toEntity
 import com.mycelium.servicemonitor.model.toModel
@@ -21,6 +22,20 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
 
     suspend fun updateServiceStatus(service: Service) {
         serviceDao.updateService(service.toEntity())
+    }
+
+    suspend fun updateServiceOrder(service: Service) {
+        val swapService = serviceDao.getServiceByPosition(service.position)
+        Log.e(
+            "ServiceRepository",
+            "" + service.id + " " + service.position + "  ${swapService?.id ?: -1}  " + service.position
+        )
+        serviceDao.swapServicePositions(
+            service.id,
+            service.position,
+            swapService?.id ?: -1,
+            service.position + 1
+        )
     }
 
     suspend fun getServiceById(id: Int): Service? =

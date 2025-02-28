@@ -11,9 +11,14 @@ data class Service(
     val url: String,
     val interval: Int,
     val headers: String = "",
+    val method: String = "",
+    val body: String = "",
+
+    val position: Int = 0,
 
 
     @KTransient val status: String = "",
     @KTransient val lastChecked: Long = 0L,
     @KTransient val archived: Boolean = false
+
 )

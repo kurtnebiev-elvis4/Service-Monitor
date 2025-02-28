@@ -135,10 +135,14 @@ fun ServiceListScreen(
         ) {
             items(uiState.services) { service ->
                 ServiceListItem(service,
+                    onMoveUp = { viewModel.moveUp(it) },
                     onCheck = { viewModel.checkService(it) },
                     onEdit = { onEditServiceClick(it.id) },
                     onArchive = { viewModel.archiveService(it) },
                     onRemove = { viewModel.removeService(it) })
+            }
+            item {
+                Spacer(Modifier.height(64.dp))
             }
         }
     }
@@ -147,6 +151,7 @@ fun ServiceListScreen(
 @Composable
 fun ServiceListItem(
     service: Service,
+    onMoveUp: (Service) -> Unit,
     onCheck: (Service) -> Unit,
     onEdit: (Service) -> Unit,
     onArchive: (Service) -> Unit,
@@ -184,7 +189,7 @@ fun ServiceListItem(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = service.name,
+                        text = "${service.position}. ${service.name}",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -200,6 +205,13 @@ fun ServiceListItem(
                         expanded = expandedItemMenu,
                         onDismissRequest = { expandedItemMenu = false }
                     ) {
+                        DropdownMenuItem(
+                            text = { Text("Move up") },
+                            onClick = {
+                                expandedItemMenu = false
+                                onMoveUp(service)
+                            }
+                        )
                         DropdownMenuItem(
                             text = { Text("Check") },
                             onClick = {

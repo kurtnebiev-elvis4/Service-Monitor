@@ -1,6 +1,5 @@
 package com.mycelium.servicemonitor.model
 
-
 fun ServiceEntity.toModel(): Service =
     Service(
         id = this.id,
@@ -8,9 +7,12 @@ fun ServiceEntity.toModel(): Service =
         url = this.url,
         interval = this.interval,
         headers = this.headers,
+        method = this.method,  // new field conversion
+        body = this.body,      // new field conversion
         status = this.status,
         lastChecked = this.lastChecked,
-        archived = this.archived
+        archived = this.archived,
+        position = this.position
     )
 
 fun Service.toEntity(): ServiceEntity =
@@ -20,7 +22,10 @@ fun Service.toEntity(): ServiceEntity =
         url = this.url,
         interval = this.interval,
         headers = this.headers,
+        method = this.method,  // new field conversion
+        body = this.body,      // new field conversion
         status = this.status,
         lastChecked = this.lastChecked,
-        archived = this.archived
+        archived = this.archived,
+        position = this.position
     )

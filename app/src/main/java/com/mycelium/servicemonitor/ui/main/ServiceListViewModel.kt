@@ -103,4 +103,10 @@ class ServiceListViewModel @Inject constructor(
             repository.removeAll()
         }
     }
+
+    fun moveUp(service: Service) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.updateServiceOrder(service)
+        }
+    }
 }
