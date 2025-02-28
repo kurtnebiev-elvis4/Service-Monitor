@@ -29,7 +29,7 @@ fun HeaderDialog(
         text = {
             Column {
                 Box {
-                    var textFieldWidth by remember { mutableStateOf(0) }
+                    var textFieldWidth by remember { mutableIntStateOf(0) }
                     val density = LocalDensity.current
                     OutlinedTextField(
                         value = customKey,

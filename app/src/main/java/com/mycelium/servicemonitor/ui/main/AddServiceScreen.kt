@@ -14,14 +14,14 @@ fun AddServiceScreen(
 ) {
     var name by remember { mutableStateOf("") }
     var url by remember { mutableStateOf("") }
-    var intervalText by remember { mutableStateOf("") }
+    var intervalText by remember { mutableIntStateOf(60) }
     var method by remember { mutableStateOf("GET") }
     var body by remember { mutableStateOf("") }
     var headersList by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var showHeaderDialog by remember { mutableStateOf(false) }
 
     // Basic validation (adjust as needed)
-    val isValid = name.isNotBlank() && url.isNotBlank() && intervalText.toIntOrNull() != null
+    val isValid = name.isNotBlank() && url.isNotBlank()
     val uiState by viewModel.provideUIState().collectAsState()
 
     LaunchedEffect(uiState) {

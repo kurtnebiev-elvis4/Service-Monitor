@@ -49,10 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mycelium.servicemonitor.R
 import com.mycelium.servicemonitor.model.Service
+import common.CommonKeys
 import common.provideUIState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,7 +162,6 @@ fun ServiceListItem(
     // Maintain local state to toggle expanded details.
     var expanded by remember { mutableStateOf(false) }
 
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,7 +249,10 @@ fun ServiceListItem(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "URL: ${service.url}", style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = stringResource(R.string.check_interval, service.interval),
+                    text = stringResource(
+                        R.string.check_interval,
+                        CommonKeys.intervalOptionsInvert[service.interval].orEmpty()
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(

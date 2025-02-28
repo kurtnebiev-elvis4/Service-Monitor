@@ -30,13 +30,13 @@ fun EditServiceScreen(
 
     var name by remember { mutableStateOf(service.name) }
     var url by remember { mutableStateOf(service.url) }
-    var intervalText by remember { mutableStateOf(service.interval.toString()) }
+    var intervalText by remember { mutableIntStateOf(service.interval) }
     var method by remember { mutableStateOf(service.method) }
     var body by remember { mutableStateOf(service.body) }
     var headersList by remember { mutableStateOf(parseHeaders(service.headers)) }
     var showHeaderDialog by remember { mutableStateOf(false) }
 
-    val isValid = name.isNotBlank() && url.isNotBlank() && intervalText.toIntOrNull() != null
+    val isValid = name.isNotBlank() && url.isNotBlank()
 
     LaunchedEffect(uiState) {
         if (uiState.success) {
