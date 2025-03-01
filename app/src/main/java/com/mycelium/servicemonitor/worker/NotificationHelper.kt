@@ -73,23 +73,23 @@ class NotificationHelper @Inject constructor(
 
         NotificationManagerCompat.from(context).notify(notificationId, notification)
 
-        // Build the group summary notification.
-        val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(smallIcon)
-            .setStyle(
-                NotificationCompat.InboxStyle()
-                    .setSummaryText("Server status notifications")
-            )
-            .setContentIntent(startIntent(context))
-            .setContentTitle("Server Status")
-            .setContentText("You have new notifications")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setGroup(groupKey)
-            .setGroupSummary(true)
-            .build()
-
-        // Use a fixed ID for the summary so it gets updated.
-        NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, summaryNotification)
+//        // Build the group summary notification.
+//        val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
+//            .setSmallIcon(smallIcon)
+//            .setStyle(
+//                NotificationCompat.InboxStyle()
+//                    .setSummaryText("Server status notifications")
+//            )
+//            .setContentIntent(startIntent(context))
+//            .setContentTitle("Server Status")
+//            .setContentText("You have new notifications")
+//            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//            .setGroup(groupKey)
+//            .setGroupSummary(true)
+//            .build()
+//
+//        // Use a fixed ID for the summary so it gets updated.
+//        NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, summaryNotification)
     }
 
     fun cancelNotification(context: Context, notificationId: Int) {

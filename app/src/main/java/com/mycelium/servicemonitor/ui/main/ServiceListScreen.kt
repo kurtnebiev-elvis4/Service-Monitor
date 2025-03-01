@@ -56,7 +56,6 @@ import java.util.Date
 import java.util.Locale
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceListScreen(
     viewModel: ServiceListViewModel = hiltViewModel(),
@@ -64,60 +63,9 @@ fun ServiceListScreen(
     onEditServiceClick: (Int) -> Unit
 ) {
     val uiState by viewModel.provideUIState().collectAsState()
-    var menuExpanded by remember { mutableStateOf(false) }
-
-    val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri: Uri? ->
-            uri?.let { viewModel.importList(it) }
-        }
-    )
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Сервисы для мониторинга") },
-                actions = {
-                    IconButton(onClick = { menuExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Menu"
-                        )
-                    }
-                    DropdownMenu(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Check All Now") },
-                            onClick = {
-                                menuExpanded = false
-                                viewModel.checkAllNow()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Export List") },
-                            onClick = {
-                                menuExpanded = false
-                                viewModel.exportList()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Import List") },
-                            onClick = {
-                                menuExpanded = false
-                                importLauncher.launch(arrayOf("application/json"))
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Remove All") },
-                            onClick = {
-                                menuExpanded = false
-                                viewModel.removeAll()
-                            }
-                        )
-                    }
-                })
+            ListTopBar(viewModel)
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddServiceClick) {
@@ -132,7 +80,7 @@ fun ServiceListScreen(
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(16.dp)
         ) {
             items(uiState.services.filter { !it.archived }) { service ->
                 ServiceListItem(service,
@@ -146,13 +94,7 @@ fun ServiceListScreen(
             val archivedServices = uiState.services.filter { it.archived }
             if (archivedServices.isNotEmpty()) {
                 item {
-                    Spacer(
-                        Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth()
-                            .height(2.dp)
-                            .background(MaterialTheme.colorScheme.tertiary)
-                    )
+                    ArchivedLabel()
                 }
                 items(uiState.services.filter { it.archived }) { service ->
                     ServiceListItem(service,
@@ -169,6 +111,79 @@ fun ServiceListScreen(
             }
         }
     }
+}
+
+@Composable
+fun ArchivedLabel() {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(
+            "Archive",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Spacer(
+            Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(MaterialTheme.colorScheme.tertiary)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListTopBar(viewModel: ServiceListViewModel) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri: Uri? ->
+            uri?.let { viewModel.importList(it) }
+        }
+    )
+    TopAppBar(
+        title = { Text("Сервисы для мониторинга") },
+        actions = {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Menu"
+                )
+            }
+            DropdownMenu(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Check All Now") },
+                    onClick = {
+                        menuExpanded = false
+                        viewModel.checkAllNow()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Export List") },
+                    onClick = {
+                        menuExpanded = false
+                        viewModel.exportList()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Import List") },
+                    onClick = {
+                        menuExpanded = false
+                        importLauncher.launch(arrayOf("application/json"))
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Remove All") },
+                    onClick = {
+                        menuExpanded = false
+                        viewModel.removeAll()
+                    }
+                )
+            }
+        })
 }
 
 @Composable
