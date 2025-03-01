@@ -50,6 +50,20 @@ android {
     buildFeatures {
         compose = true
     }
+
+    applicationVariants.all {
+        this.outputs
+            .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
+            .forEach { output ->
+                val variant = this.buildType.name
+                var apkName = "servicemonitor_"
+                apkName += this.versionName
+                if (variant.isNotEmpty()) apkName += "_$variant"
+                apkName += ".apk"
+                println("ApkName=$apkName ${this.buildType.name}")
+                output.outputFileName = apkName
+            }
+    }
 }
 
 dependencies {
