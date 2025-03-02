@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: ['**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: >
+      !contains(github.event.head_commit.message, '#skip-ci')
+    runs-on: ubuntu-latest
+    steps:
+
+#      - name: Install deps
+#        run: sudo apt-get install -y unzip diffutils
+
+      - name: Set up JDK environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - run: ./gradlew clean test app:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: |
+            mbw/build/outputs/apk/
+#            mbw/build/outputs/native-debug-symbols/
