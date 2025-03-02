@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mycelium.servicemonitor.ui.history.HistoryScreen
 import com.mycelium.servicemonitor.ui.main.AddServiceScreen
 import com.mycelium.servicemonitor.ui.main.EditServiceScreen
 import com.mycelium.servicemonitor.ui.main.ServiceListScreen
@@ -67,16 +68,24 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+enum class Page(name: String) {
+    SERVICE_LIST("serviceList"),
+    ADD_SERVICE("addService"),
+    EDIT_SERVICE("editService"),
+    HISTORY("history")
+}
+
 @Composable
 fun MyAppNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "serviceList") {
-        composable("serviceList") {
+    NavHost(navController = navController, startDestination = Page.SERVICE_LIST.name) {
+        composable(Page.SERVICE_LIST.name) {
             ServiceListScreen(
                 onAddServiceClick = { navController.navigate("addService") },
-                onEditServiceClick = { serviceId -> navController.navigate("editService/$serviceId") }
+                onEditServiceClick = { serviceId -> navController.navigate("editService/$serviceId") },
+                openPage = { page -> navController.navigate(page) }
             )
         }
-        composable("addService") {
+        composable(Page.ADD_SERVICE.name) {
             AddServiceScreen(
                 onServiceSaved = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
@@ -90,6 +99,9 @@ fun MyAppNavHost(navController: NavHostController) {
                 onServiceUpdated = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() }
             )
+        }
+        composable(Page.HISTORY.name) {
+            HistoryScreen()
         }
     }
 }

@@ -47,6 +47,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.gson.annotations.Until
+import com.mycelium.servicemonitor.Page
 import com.mycelium.servicemonitor.R
 import com.mycelium.servicemonitor.model.Service
 import common.CommonKeys
@@ -60,12 +62,13 @@ import java.util.Locale
 fun ServiceListScreen(
     viewModel: ServiceListViewModel = hiltViewModel(),
     onAddServiceClick: () -> Unit,
-    onEditServiceClick: (Int) -> Unit
+    onEditServiceClick: (Int) -> Unit,
+    openPage: (String) -> Unit
 ) {
     val uiState by viewModel.provideUIState().collectAsState()
     Scaffold(
         topBar = {
-            ListTopBar(viewModel)
+            ListTopBar(viewModel, openPage)
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddServiceClick) {
@@ -132,7 +135,10 @@ fun ArchivedLabel() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListTopBar(viewModel: ServiceListViewModel) {
+fun ListTopBar(
+    viewModel: ServiceListViewModel,
+    openPage: (String) -> Unit
+) {
     var menuExpanded by remember { mutableStateOf(false) }
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -173,6 +179,13 @@ fun ListTopBar(viewModel: ServiceListViewModel) {
                     onClick = {
                         menuExpanded = false
                         importLauncher.launch(arrayOf("application/json"))
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("History") },
+                    onClick = {
+                        menuExpanded = false
+                        openPage(Page.HISTORY.name)
                     }
                 )
                 DropdownMenuItem(

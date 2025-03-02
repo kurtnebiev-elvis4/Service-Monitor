@@ -8,7 +8,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mycelium.servicemonitor.MainActivity
+import com.mycelium.servicemonitor.model.CheckHistoryEntity
 import com.mycelium.servicemonitor.model.Service
+import com.mycelium.servicemonitor.repository.CheckHistoryDao
+import com.mycelium.servicemonitor.repository.HistoryRepository
 import com.mycelium.servicemonitor.repository.ServiceRepository
 import common.CheckMode
 import common.parseHeaders
@@ -27,6 +30,7 @@ class ServiceCheckWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val repository: ServiceRepository,
+    private val historyRepository: HistoryRepository,
     private val notificationHelper: NotificationHelper
 ) : CoroutineWorker(appContext, workerParams) {
 
@@ -53,6 +57,14 @@ class ServiceCheckWorker @AssistedInject constructor(
         else service.copy(
             status = result,
             lastChecked = System.currentTimeMillis()
+        )
+
+        historyRepository.insert(
+            CheckHistoryEntity(
+                serviceName = service.name,
+                timestamp = System.currentTimeMillis(),
+                status = result
+            )
         )
 
         // Update the service with new status and last checked timestamp.
