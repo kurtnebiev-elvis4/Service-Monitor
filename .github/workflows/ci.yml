@@ -30,7 +30,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - run: ./gradlew clean test app:assembleDebug
+      - run: ./gradlew --no-daemon --build-cache --parallel --configure-on-demand clean test app:assembleDebug
 
       - uses: actions/upload-artifact@v4
         with:
