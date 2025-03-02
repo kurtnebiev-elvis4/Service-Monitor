@@ -35,5 +35,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: |
-            mbw/build/outputs/apk/
+            app/build/outputs/apk/
 #            mbw/build/outputs/native-debug-symbols/
