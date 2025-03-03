@@ -37,6 +37,7 @@ class ServiceListViewModel @Inject constructor(
     override val uiStateM: UIStateManager<ServiceListUIState>
 ) : ViewModel(), WithUIStateManger<ServiceListUIState> {
     init {
+        scheduler.scheduleAllServiceChecks()
         viewModelScope.launch(Dispatchers.Default) {
             repository.allServicesFlow()
                 .catch { e ->
@@ -71,6 +72,7 @@ class ServiceListViewModel @Inject constructor(
             repository.archiveService(service)
         }
     }
+
     fun unarchiveService(service: Service) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.unarchiveService(service)

@@ -19,7 +19,6 @@ import com.mycelium.servicemonitor.ui.main.AddServiceScreen
 import com.mycelium.servicemonitor.ui.main.EditServiceScreen
 import com.mycelium.servicemonitor.ui.main.ServiceListScreen
 import com.mycelium.servicemonitor.ui.theme.ServiceMonitorTheme
-import common.CommonKeys
 import common.CommonKeys.REQUEST_CODE_POST_NOTIFICATIONS
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,7 +57,7 @@ class MainActivity : ComponentActivity() {
         deviceId: Int
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
-        if (requestCode == CommonKeys.REQUEST_CODE_POST_NOTIFICATIONS) {
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // Permission granted, you can now show notifications
             } else {
