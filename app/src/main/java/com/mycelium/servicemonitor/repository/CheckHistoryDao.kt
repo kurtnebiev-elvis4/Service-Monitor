@@ -11,6 +11,6 @@ interface CheckHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CheckHistoryEntity)
 
-    @Query("SELECT * FROM check_history")
-    suspend fun getAll(): List<CheckHistoryEntity>
+    @Query("SELECT * FROM check_history ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getAll(offset: Int = 0, limit: Int = 50): List<CheckHistoryEntity>
 }

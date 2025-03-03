@@ -11,7 +11,7 @@ class HistoryRepository @Inject constructor(private val historyDao: CheckHistory
         historyDao.insert(item)
     }
 
-    suspend fun getAll(): List<CheckHistoryEntity> {
+    suspend fun getAll(offset: Int = 0, limit: Int = 50): List<CheckHistoryEntity> {
         return historyDao.getAll()
     }
 }
