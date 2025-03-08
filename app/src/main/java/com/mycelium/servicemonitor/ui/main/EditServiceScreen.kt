@@ -33,6 +33,8 @@ fun EditServiceScreen(
     var intervalText by remember { mutableIntStateOf(service.interval) }
     var method by remember { mutableStateOf(service.method) }
     var body by remember { mutableStateOf(service.body) }
+    // New state for SHA-1 Certificate.
+    var sha1Certificate by remember { mutableStateOf(service.sha1Certificate) }
     var headersList by remember { mutableStateOf(parseHeaders(service.headers)) }
     var showHeaderDialog by remember { mutableStateOf(false) }
 
@@ -56,6 +58,8 @@ fun EditServiceScreen(
         onMethodChange = { method = it },
         body = body,
         onBodyChange = { body = it },
+        sha1Certificate = sha1Certificate,
+        onSha1CertificateChange = { sha1Certificate = it },
         headersList = headersList,
         onRemoveHeader = { header -> headersList = headersList.filterNot { it == header } },
         onAddHeader = { showHeaderDialog = true },
@@ -71,7 +75,8 @@ fun EditServiceScreen(
                     interval = intervalText.toInt(),
                     headers = headersString,
                     method = method,
-                    body = body
+                    body = body,
+                    sha1Certificate = sha1Certificate
                 )
             )
         },

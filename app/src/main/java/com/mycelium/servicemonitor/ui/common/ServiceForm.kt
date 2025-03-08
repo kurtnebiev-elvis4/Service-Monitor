@@ -33,6 +33,8 @@ fun ServiceForm(
     onMethodChange: (String) -> Unit,
     body: String,
     onBodyChange: (String) -> Unit,
+    sha1Certificate: String,             // New parameter for SHA1 certificate value.
+    onSha1CertificateChange: (String) -> Unit, // New parameter for SHA1 certificate change handling.
     headersList: List<Pair<String, String>>,
     onRemoveHeader: (Pair<String, String>) -> Unit,
     onAddHeader: () -> Unit,
@@ -45,8 +47,6 @@ fun ServiceForm(
 ) {
 
     // Local state to control dropdown expansion.
-
-    // Use the passed value, or default to "1 hour" if empty.
     val selectedInterval = intervalText
 
     Scaffold(
@@ -107,8 +107,7 @@ fun ServiceForm(
             Spacer(modifier = Modifier.height(8.dp))
             // Interval selection using a dropdown menu.
             var intervalDropdownExpanded by remember { mutableStateOf(false) }
-            val selectedOption =
-                CommonKeys.intervalOptionsInvert[selectedInterval]
+            val selectedOption = CommonKeys.intervalOptionsInvert[selectedInterval]
 
             Box(
                 modifier = Modifier
@@ -121,7 +120,6 @@ fun ServiceForm(
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // You can place a label above if desired, or simply display the selected text.
                 Text(text = selectedOption.orEmpty())
             }
 
@@ -155,6 +153,15 @@ fun ServiceForm(
                 value = body,
                 onValueChange = onBodyChange,
                 label = { Text("HTTP Body") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !saving
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            // New field for SHA1 Certificate.
+            OutlinedTextField(
+                value = sha1Certificate,
+                onValueChange = onSha1CertificateChange,
+                label = { Text("SHA1 Certificate") },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !saving
             )

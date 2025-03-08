@@ -14,12 +14,11 @@ data class Service(
     val method: String = "",
     val body: String = "",
 
+    val sha1Certificate: String = "",
     val position: Int = 0,
-
 
     @KTransient val status: String = "",
     @KTransient val lastSuccessfulCheck: Long = 0L,
     @KTransient val lastChecked: Long = 0L,
     @KTransient val archived: Boolean = false
-
 )

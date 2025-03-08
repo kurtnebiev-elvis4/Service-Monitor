@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 
@@ -90,6 +91,29 @@ class ServiceCheckWorker @AssistedInject constructor(
             with(withContext(Dispatchers.IO) {
                 url.openConnection()
             } as HttpURLConnection) {
+                if (this is HttpsURLConnection && service.sha1Certificate.isNotEmpty()) {
+                    val trustAllCerts = arrayOf<javax.net.ssl.TrustManager>(
+                        object : javax.net.ssl.X509TrustManager {
+                            override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
+                            override fun checkClientTrusted(
+                                chain: Array<java.security.cert.X509Certificate>,
+                                authType: String
+                            ) {}
+                            override fun checkServerTrusted(
+                                chain: Array<java.security.cert.X509Certificate>,
+                                authType: String
+                            ) {}
+                        }
+                    )
+                    val sslContext = javax.net.ssl.SSLContext.getInstance("TLS")
+                    sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+                    this.sslSocketFactory = sslContext.socketFactory
+                    // Optionally, disable hostname verification (not recommended unless necessary)
+                     this.hostnameVerifier = javax.net.ssl.HostnameVerifier { hostname, session -> true
+                         val validHostname = session.peerHost.equals(hostname, ignoreCase = true)
+                         validHostname
+                     }
+                }
                 parseHeaders(service.headers).forEach { (key, value) ->
                     setRequestProperty(key, value)
                 }

@@ -11,6 +11,7 @@ import javax.inject.Singleton
 @Singleton
 class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) {
     suspend fun insertService(service: Service) {
+        // The Service model now includes sha1Certificate.
         serviceDao.insertService(service.toEntity())
     }
 
@@ -19,8 +20,8 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
     fun allServicesFlow() = serviceDao.allServicesFlow()
         .map { list -> list.map { it.toModel() } }
 
-
     suspend fun updateService(service: Service) {
+        // Ensure the updated service includes the new sha1Certificate field.
         serviceDao.updateService(service.toEntity())
     }
 
@@ -28,7 +29,7 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
         val swapService = serviceDao.getServiceByPosition(service.position)
         Log.e(
             "ServiceRepository",
-            "" + service.id + " " + service.position + "  ${swapService?.id ?: -1}  " + service.position
+            "${service.id} ${service.position}  ${swapService?.id ?: -1}  ${service.position}"
         )
         serviceDao.swapServicePositions(
             service.id,
@@ -58,4 +59,3 @@ class ServiceRepository @Inject constructor(private val serviceDao: ServiceDao) 
         serviceDao.deleteAllServices()
     }
 }
-

@@ -17,7 +17,8 @@ data class ServiceEntity(
     val method: String = "",
     @ColumnInfo(defaultValue = "")
     val body: String = "",
-
+    @ColumnInfo(defaultValue = "")
+    val sha1Certificate: String = "",
     val status: String,
     val lastChecked: Long,
     @ColumnInfo(defaultValue = "0")
@@ -26,4 +27,3 @@ data class ServiceEntity(
     @ColumnInfo(defaultValue = "0")
     val position: Int = 0
 )
-

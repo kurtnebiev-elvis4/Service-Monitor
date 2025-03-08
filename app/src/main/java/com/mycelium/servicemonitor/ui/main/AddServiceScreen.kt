@@ -17,6 +17,8 @@ fun AddServiceScreen(
     var intervalText by remember { mutableIntStateOf(60) }
     var method by remember { mutableStateOf("GET") }
     var body by remember { mutableStateOf("") }
+    // New state for the SHA1 Certificate field.
+    var sha1Certificate by remember { mutableStateOf("") }
     var headersList by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var showHeaderDialog by remember { mutableStateOf(false) }
 
@@ -42,6 +44,9 @@ fun AddServiceScreen(
         onMethodChange = { method = it },
         body = body,
         onBodyChange = { body = it },
+        // Pass the new SHA1 certificate state and its change handler.
+        sha1Certificate = sha1Certificate,
+        onSha1CertificateChange = { sha1Certificate = it },
         headersList = headersList,
         onRemoveHeader = { header -> headersList = headersList.filterNot { it == header } },
         onAddHeader = { showHeaderDialog = true },
@@ -52,10 +57,11 @@ fun AddServiceScreen(
             viewModel.saveService(
                 name,
                 url,
-                intervalText.toInt(),
+                intervalText,
                 headersList.joinToString(",") { "${it.first}:${it.second}" },
                 method,
-                body
+                body,
+                sha1Certificate
             )
         },
         onCancel = onCancel,

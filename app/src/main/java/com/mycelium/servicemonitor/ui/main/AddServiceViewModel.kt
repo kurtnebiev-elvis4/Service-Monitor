@@ -11,7 +11,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 data class AddServiceUIState(
     val saving: Boolean,
     val success: Boolean,
@@ -21,17 +20,20 @@ data class AddServiceUIState(
     constructor() : this(saving = false, success = false, error = "")
 }
 
-
 @HiltViewModel
 class AddServiceViewModel @Inject constructor(
     private val repository: ServiceRepository,
     override val uiStateM: UIStateManager<AddServiceUIState>
 ) : ViewModel(), WithUIStateManger<AddServiceUIState> {
 
-
     fun saveService(
-        name: String, url: String, interval: Int,
-        headers: String, method: String, body: String
+        name: String,
+        url: String,
+        interval: Int,
+        headers: String,
+        method: String,
+        body: String,
+        sha1Certificate: String // New parameter added
     ) {
         viewModelScope.launch {
             uiStateM.push(uiState.copy(saving = true))
@@ -41,7 +43,10 @@ class AddServiceViewModel @Inject constructor(
                         name = name,
                         url = url,
                         interval = interval,
-                        headers = headers
+                        headers = headers,
+                        method = method,
+                        body = body,
+                        sha1Certificate = sha1Certificate // Passing the new SHA1 certificate
                     )
                 )
                 uiStateM.push(uiState.copy(success = true))
