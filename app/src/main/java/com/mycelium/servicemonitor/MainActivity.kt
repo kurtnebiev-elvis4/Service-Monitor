@@ -79,7 +79,7 @@ fun MyAppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Page.SERVICE_LIST.name) {
         composable(Page.SERVICE_LIST.name) {
             ServiceListScreen(
-                onAddServiceClick = { navController.navigate("addService") },
+                onAddServiceClick = { navController.navigate(Page.ADD_SERVICE.name) },
                 onEditServiceClick = { serviceId -> navController.navigate("editService/$serviceId") },
                 openPage = { page -> navController.navigate(page) }
             )
