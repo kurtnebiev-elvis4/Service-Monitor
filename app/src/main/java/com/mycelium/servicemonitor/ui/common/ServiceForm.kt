@@ -62,6 +62,7 @@ fun ServiceForm(
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.imePadding(),
                 onClick = { if (isValid) onSave() },
                 containerColor = if (isValid) MaterialTheme.colorScheme.primary else Color.Gray
             ) {
