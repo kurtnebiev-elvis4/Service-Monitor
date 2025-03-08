@@ -1,30 +1,30 @@
 package com.mycelium.servicemonitor.worker
 
-import android.app.PendingIntent
-import android.app.TaskStackBuilder
 import android.content.Context
-import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.mycelium.servicemonitor.MainActivity
 import com.mycelium.servicemonitor.model.CheckHistoryEntity
 import com.mycelium.servicemonitor.model.Service
-import com.mycelium.servicemonitor.repository.CheckHistoryDao
 import com.mycelium.servicemonitor.repository.HistoryRepository
 import com.mycelium.servicemonitor.repository.ServiceRepository
 import common.CheckMode
-import common.parseHeaders
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLSocket
-import javax.net.ssl.SSLSocketFactory
 
+interface ServiceChecker {
+    suspend fun check(): String
+}
+
+object CheckMethodFactory {
+    fun getChecker(service: Service): ServiceChecker =
+        when (CheckMode.fromUrl(service.url)) {
+            CheckMode.HTTP, CheckMode.HTTPS -> HttpServiceChecker(service)
+            CheckMode.TCP_TLS -> TcpTlsServiceChecker(service)
+        }
+}
 
 @HiltWorker
 class ServiceCheckWorker @AssistedInject constructor(
@@ -43,12 +43,13 @@ class ServiceCheckWorker @AssistedInject constructor(
         // Retrieve the service from the repository.
         val service = repository.getServiceById(serviceId) ?: return Result.failure()
 
-        // Check the service (HTTP call).
-        val mode = CheckMode.fromUrl(service.url)
-        val result = when (mode) {
-            CheckMode.HTTP, CheckMode.HTTPS -> checkHttp(service)
-            CheckMode.TCP_TLS -> checkTcpTls(service)
+        if (!isNetworkQualitySufficient()) {
+            return Result.retry()
         }
+
+        // Use the factory to obtain the appropriate checker and perform the check.
+        val checker = CheckMethodFactory.getChecker(service)
+        val result = checker.check()
 
         val updatedService = if (result == "ok") service.copy(
             status = result,
@@ -85,92 +86,15 @@ class ServiceCheckWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun checkHttp(service: Service): String =
-        try {
-            val url = URL(service.url)
-            with(withContext(Dispatchers.IO) {
-                url.openConnection()
-            } as HttpURLConnection) {
-                if (this is HttpsURLConnection && service.sha1Certificate.isNotEmpty()) {
-                    val trustAllCerts = arrayOf<javax.net.ssl.TrustManager>(
-                        object : javax.net.ssl.X509TrustManager {
-                            override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
-                            override fun checkClientTrusted(
-                                chain: Array<java.security.cert.X509Certificate>,
-                                authType: String
-                            ) {}
-                            override fun checkServerTrusted(
-                                chain: Array<java.security.cert.X509Certificate>,
-                                authType: String
-                            ) {}
-                        }
-                    )
-                    val sslContext = javax.net.ssl.SSLContext.getInstance("TLS")
-                    sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-                    this.sslSocketFactory = sslContext.socketFactory
-                    // Optionally, disable hostname verification (not recommended unless necessary)
-                     this.hostnameVerifier = javax.net.ssl.HostnameVerifier { hostname, session -> true
-                         val validHostname = session.peerHost.equals(hostname, ignoreCase = true)
-                         validHostname
-                     }
-                }
-                parseHeaders(service.headers).forEach { (key, value) ->
-                    setRequestProperty(key, value)
-                }
-                connectTimeout = 5000
-                readTimeout = 5000
-                requestMethod = service.method.ifEmpty { "GET" }.uppercase()
-                if (requestMethod in listOf(
-                        "POST",
-                        "PUT",
-                        "PATCH",
-                        "DELETE"
-                    ) && service.body.isNotEmpty()
-                ) {
-                    doOutput = true
-                    outputStream.use { os ->
-                        os.write(service.body.toByteArray(Charsets.UTF_8))
-                    }
-                }
-                connect()
-                if (responseCode in 200..299) {
-                    "ok"
-                } else {
-                    "$responseCode $responseMessage"
-                }
-            }
-        } catch (e: Exception) {
-            e.message.orEmpty()
+    private fun isNetworkQualitySufficient(): Boolean {
+        val connectivityManager =
+            applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+            return false
         }
-
-    private suspend fun checkTcpTls(service: Service): String =
-        try {
-            withContext(Dispatchers.IO) {
-                val (host, port) = parseTcpTlsUrl(service.url)
-                // Create SSLSocket and connect
-                val sslSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
-                val sslSocket = sslSocketFactory.createSocket(host, port) as SSLSocket
-                sslSocket.use {
-                    // Start the TLS handshake
-                    it.startHandshake()
-                }
-            }
-            "ok"
-        } catch (e: Exception) {
-            e.message.orEmpty()
-        }
-
-    private fun parseTcpTlsUrl(tcpTlsUrl: String): Pair<String, Int> {
-        // Example: tcp-tls://example.com:8443
-        // Remove prefix if it starts with tcp-tls://
-        val stripped = tcpTlsUrl.removePrefix("tcp-tls://")
-        // Split on : to get host and port
-        val parts = stripped.split(":")
-        val host = parts[0]
-        // If no port is specified, default to 443
-        val port = if (parts.size > 1) parts[1].toIntOrNull() ?: 443 else 443
-        return Pair(host, port)
+        val downlinkSpeed = networkCapabilities.getLinkDownstreamBandwidthKbps()
+        return downlinkSpeed >= 1000
     }
 }
-
-
