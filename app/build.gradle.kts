@@ -25,8 +25,8 @@ android {
         applicationId = "com.mycelium.servicemonitor"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10000
-        versionName = "1.0.1"
+        versionCode = 10002
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

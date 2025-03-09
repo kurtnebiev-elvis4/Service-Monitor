@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -120,7 +121,17 @@ fun ServiceForm(
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                Text(text = selectedOption.orEmpty())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = selectedOption.orEmpty())
+                    Icon(
+                        imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "Dropdown arrow"
+                    )
+                }
             }
 
             DropdownMenu(
@@ -139,14 +150,46 @@ fun ServiceForm(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            // New field for HTTP method.
-            OutlinedTextField(
-                value = method,
-                onValueChange = onMethodChange,
-                label = { Text("HTTP Method") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !saving
-            )
+            // New field for HTTP method as dropdown menu with dropdown icon.
+            var httpMethodDropdownExpanded by remember { mutableStateOf(false) }
+            val httpMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { httpMethodDropdownExpanded = true }
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = MaterialTheme.shapes.small
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = if (method.isEmpty()) "GET" else method)
+                    Icon(
+                        imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "Dropdown arrow"
+                    )
+                }
+            }
+            DropdownMenu(
+                expanded = httpMethodDropdownExpanded,
+                onDismissRequest = { httpMethodDropdownExpanded = false }
+            ) {
+                httpMethods.forEach { m ->
+                    DropdownMenuItem(
+                        text = { Text(m) },
+                        onClick = {
+                            onMethodChange(m)
+                            httpMethodDropdownExpanded = false
+                        }
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             // New field for HTTP body.
             OutlinedTextField(
@@ -188,6 +231,7 @@ fun ServiceForm(
             Button(onClick = onAddHeader) {
                 Text(text = "Add Header")
             }
+            Spacer(modifier = Modifier.height(64.dp))
         }
     }
     headerDialog()
