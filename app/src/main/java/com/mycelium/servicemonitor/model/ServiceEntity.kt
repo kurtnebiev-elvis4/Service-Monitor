@@ -25,5 +25,7 @@ data class ServiceEntity(
     val lastSuccessfulCheck: Long = 0L,
     val archived: Boolean = false,
     @ColumnInfo(defaultValue = "0")
-    val position: Int = 0
+    val position: Int = 0,
+    @ColumnInfo(defaultValue = "")
+    val groupName: String = ""
 )

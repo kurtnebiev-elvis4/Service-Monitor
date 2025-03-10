@@ -7,14 +7,15 @@ fun ServiceEntity.toModel(): Service =
         url = this.url,
         interval = this.interval,
         headers = this.headers,
-        method = this.method,  // new field conversion
-        body = this.body,      // new field conversion
-        sha1Certificate = this.sha1Certificate, // new field conversion
+        method = this.method,
+        body = this.body,
+        sha1Certificate = this.sha1Certificate,
         status = this.status,
         lastChecked = this.lastChecked,
         lastSuccessfulCheck = this.lastSuccessfulCheck,
         archived = this.archived,
-        position = this.position
+        position = this.position,
+        groupName = this.groupName
     )
 
 fun Service.toEntity(): ServiceEntity =
@@ -24,12 +25,13 @@ fun Service.toEntity(): ServiceEntity =
         url = this.url,
         interval = this.interval,
         headers = this.headers,
-        method = this.method,  // new field conversion
-        body = this.body,      // new field conversion
-        sha1Certificate = this.sha1Certificate, // new field conversion
+        method = this.method,
+        body = this.body,
+        sha1Certificate = this.sha1Certificate,
         status = this.status,
         lastChecked = this.lastChecked,
         lastSuccessfulCheck = this.lastSuccessfulCheck,
         archived = this.archived,
-        position = this.position
+        position = this.position,
+        groupName = this.groupName
     )

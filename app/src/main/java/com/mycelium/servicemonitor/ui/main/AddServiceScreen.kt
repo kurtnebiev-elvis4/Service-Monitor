@@ -2,13 +2,17 @@ package com.mycelium.servicemonitor.ui.main
 
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mycelium.servicemonitor.ui.common.CreateNewGroupDialog
 import com.mycelium.servicemonitor.ui.common.HeaderDialog
 import com.mycelium.servicemonitor.ui.common.ServiceForm
+import com.mycelium.servicemonitor.ui.common.ServiceFormCallbacks
+import com.mycelium.servicemonitor.ui.common.ServiceFormState
 import common.provideUIState
 
 @Composable
 fun AddServiceScreen(
     viewModel: AddServiceViewModel = hiltViewModel(),
+    serviceListViewModel: ServiceListViewModel = hiltViewModel(),
     onServiceSaved: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -17,10 +21,15 @@ fun AddServiceScreen(
     var intervalText by remember { mutableIntStateOf(60) }
     var method by remember { mutableStateOf("GET") }
     var body by remember { mutableStateOf("") }
-    // New state for the SHA1 Certificate field.
     var sha1Certificate by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf("") }
     var headersList by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var showHeaderDialog by remember { mutableStateOf(false) }
+    var showGroupDialog by remember { mutableStateOf(false) }
+
+    // Get available groups from ServiceListViewModel
+    val serviceListUIState by serviceListViewModel.provideUIState().collectAsState()
+    val availableGroups = serviceListUIState.groups
 
     // Basic validation (adjust as needed)
     val isValid = name.isNotBlank() && url.isNotBlank()
@@ -31,29 +40,39 @@ fun AddServiceScreen(
             onServiceSaved()
         }
     }
-
-    ServiceForm(
+    
+    // Create a ServiceFormState object
+    val formState = ServiceFormState(
         title = "Add Service",
         name = name,
-        onNameChange = { name = it },
         url = url,
-        onUrlChange = { url = it },
-        intervalText = intervalText,
-        onIntervalTextChange = { intervalText = it },
+        intervalValue = intervalText,
         method = method,
-        onMethodChange = { method = it },
         body = body,
-        onBodyChange = { body = it },
-        // Pass the new SHA1 certificate state and its change handler.
         sha1Certificate = sha1Certificate,
-        onSha1CertificateChange = { sha1Certificate = it },
+        groupName = groupName,
+        availableGroups = availableGroups,
         headersList = headersList,
-        onRemoveHeader = { header -> headersList = headersList.filterNot { it == header } },
-        onAddHeader = { showHeaderDialog = true },
         saving = uiState.saving,
         error = uiState.error,
-        isValid = isValid,
-        onSave = {
+        isValid = isValid
+    )
+    
+    // Create callback implementation
+    val callbacks = object : ServiceFormCallbacks {
+        override fun onNameChange(value: String) { name = value }
+        override fun onUrlChange(value: String) { url = value }
+        override fun onIntervalChange(value: Int) { intervalText = value }
+        override fun onMethodChange(value: String) { method = value }
+        override fun onBodyChange(value: String) { body = value }
+        override fun onSha1CertificateChange(value: String) { sha1Certificate = value }
+        override fun onGroupNameChange(value: String) { groupName = value }
+        override fun onAddHeader() { showHeaderDialog = true }
+        override fun onRemoveHeader(header: Pair<String, String>) { 
+            headersList = headersList.filterNot { it == header } 
+        }
+        override fun onCreateNewGroup() { showGroupDialog = true }
+        override fun onSave() {
             viewModel.saveService(
                 name,
                 url,
@@ -61,10 +80,16 @@ fun AddServiceScreen(
                 headersList.joinToString(",") { "${it.first}:${it.second}" },
                 method,
                 body,
-                sha1Certificate
+                sha1Certificate,
+                groupName
             )
-        },
-        onCancel = onCancel,
+        }
+        override fun onCancel() { onCancel() }
+    }
+
+    ServiceForm(
+        state = formState,
+        callbacks = callbacks,
         headerDialog = {
             if (showHeaderDialog) {
                 HeaderDialog(
@@ -77,4 +102,17 @@ fun AddServiceScreen(
             }
         }
     )
+    
+    // Show create new group dialog if needed
+    if (showGroupDialog) {
+        CreateNewGroupDialog(
+            onDismiss = { 
+                showGroupDialog = false 
+            },
+            onCreateGroup = { newGroupName ->
+                groupName = newGroupName
+                showGroupDialog = false
+            }
+        )
+    }
 }

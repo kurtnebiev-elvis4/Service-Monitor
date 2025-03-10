@@ -16,6 +16,7 @@ data class Service(
 
     val sha1Certificate: String = "",
     val position: Int = 0,
+    val groupName: String = "",
 
     @KTransient val status: String = "",
     @KTransient val lastSuccessfulCheck: Long = 0L,

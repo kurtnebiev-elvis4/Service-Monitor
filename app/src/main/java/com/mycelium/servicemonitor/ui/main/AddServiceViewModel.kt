@@ -33,7 +33,8 @@ class AddServiceViewModel @Inject constructor(
         headers: String,
         method: String,
         body: String,
-        sha1Certificate: String // New parameter added
+        sha1Certificate: String,
+        groupName: String
     ) {
         viewModelScope.launch {
             uiStateM.push(uiState.copy(saving = true))
@@ -46,7 +47,8 @@ class AddServiceViewModel @Inject constructor(
                         headers = headers,
                         method = method,
                         body = body,
-                        sha1Certificate = sha1Certificate // Passing the new SHA1 certificate
+                        sha1Certificate = sha1Certificate,
+                        groupName = groupName
                     )
                 )
                 uiStateM.push(uiState.copy(success = true))

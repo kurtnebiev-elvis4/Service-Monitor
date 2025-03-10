@@ -22,10 +22,11 @@ import javax.inject.Inject
 data class ServiceListUIState(
     val loading: Boolean,
     val services: List<Service>,
+    val groups: List<String>,
     val error: String
 ) {
     @Inject
-    constructor() : this(loading = true, services = emptyList(), error = "")
+    constructor() : this(loading = true, services = emptyList(), groups = emptyList(), error = "")
 }
 
 @HiltViewModel
@@ -38,6 +39,19 @@ class ServiceListViewModel @Inject constructor(
 ) : ViewModel(), WithUIStateManger<ServiceListUIState> {
     init {
         scheduler.scheduleAllServiceChecks()
+        
+        // Collect groups
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.getAllGroups()
+                .collect { groups ->
+                    push(
+                        uiState.copy(
+                            groups = groups
+                        )
+                    )
+                }
+        }
+        
         viewModelScope.launch(Dispatchers.Default) {
             repository.allServicesFlow()
                 .catch { e ->
@@ -49,7 +63,6 @@ class ServiceListViewModel @Inject constructor(
                     )
                 }
                 .collect { serviceList ->
-                    Log.e("ServiceListViewModel", "collect list")
                     push(
                         uiState.copy(
                             loading = false,
@@ -114,6 +127,12 @@ class ServiceListViewModel @Inject constructor(
     fun moveUp(service: Service) {
         viewModelScope.launch(Dispatchers.Default) {
             repository.updateServiceOrder(service)
+        }
+    }
+    
+    fun updateServiceGroup(service: Service, groupName: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.updateServiceGroup(service, groupName)
         }
     }
 }

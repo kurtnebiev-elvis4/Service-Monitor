@@ -26,7 +26,7 @@ interface ServiceDao {
     @Query("SELECT * FROM services ORDER BY position ASC")
     suspend fun getAllServices(): List<ServiceEntity>
 
-    @Query("SELECT * FROM services  ORDER BY position ASC")
+    @Query("SELECT * FROM services ORDER BY position ASC")
     fun allServicesFlow(): Flow<List<ServiceEntity>>
 
     @Query("SELECT * FROM services WHERE id = :id LIMIT 1")
@@ -52,6 +52,13 @@ interface ServiceDao {
         swapServiceId: Int,
         currentPosition: Int
     )
+    
     @Query("SELECT * FROM services WHERE position = :position LIMIT 1")
     fun getServiceByPosition(position: Int): ServiceEntity?
+    
+    @Query("SELECT DISTINCT groupName FROM services WHERE groupName != '' ORDER BY groupName ASC")
+    fun getAllGroups(): Flow<List<String>>
+    
+    @Query("SELECT * FROM services WHERE groupName = :groupName ORDER BY position ASC")
+    fun getServicesByGroup(groupName: String): Flow<List<ServiceEntity>>
 }
