@@ -36,7 +36,37 @@ class HttpServiceChecker(
         withContext(Dispatchers.IO) {
             connection.connect()
         }
-        if (connection.responseCode in 200..299) "ok" else "${connection.responseCode} ${connection.responseMessage}"
+
+        if (connection.responseCode !in 200..299) {
+            "${connection.responseCode} ${connection.responseMessage}"
+        } else if (service.responsePattern.isNotEmpty()) {
+            val content = withContext(Dispatchers.IO) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            }
+            
+            val matches = if (service.useRegexPattern) {
+                try {
+                    val regex = service.responsePattern.toRegex()
+                    content.contains(regex)
+                } catch (e: Exception) {
+                    return "Invalid regex pattern: ${e.message}"
+                }
+            } else {
+                content.contains(service.responsePattern)
+            }
+            
+            if (!matches) {
+                if (service.useRegexPattern) {
+                    "Response content does not match regex pattern"
+                } else {
+                    "Response content does not match expected pattern"
+                }
+            } else {
+                "ok"
+            }
+        } else {
+            "ok"
+        }
     } catch (e: Exception) {
         e.message.orEmpty()
     }

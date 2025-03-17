@@ -191,6 +191,40 @@ fun ServiceForm(
                 enabled = !state.saving
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = state.responsePattern,
+                onValueChange = { callbacks.onResponsePatternChange(it) },
+                label = { Text("Response Pattern (Optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.saving,
+                supportingText = { 
+                    Text(
+                        if (state.useRegexPattern) 
+                            "Regular expression pattern to match in the response" 
+                        else 
+                            "Text pattern to match in the response content"
+                    ) 
+                }
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Use Regular Expression",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = state.useRegexPattern,
+                    onCheckedChange = { callbacks.onUseRegexPatternChange(it) },
+                    enabled = !state.saving
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             
             // Group selection dropdown
             var groupDropdownExpanded by remember { mutableStateOf(false) }

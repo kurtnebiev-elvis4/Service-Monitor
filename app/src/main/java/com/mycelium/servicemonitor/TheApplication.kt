@@ -39,12 +39,11 @@ object CoreModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json {
-        return Json {
+    fun provideJson(): Json =
+        Json {
             ignoreUnknownKeys = true
             isLenient = true
             prettyPrint = false
             // Configure other options as desired
         }
-    }
 }

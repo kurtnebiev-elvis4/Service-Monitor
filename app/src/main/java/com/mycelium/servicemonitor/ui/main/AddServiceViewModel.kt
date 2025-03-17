@@ -34,6 +34,8 @@ class AddServiceViewModel @Inject constructor(
         method: String,
         body: String,
         sha1Certificate: String,
+        responsePattern: String,
+        useRegexPattern: Boolean,
         groupName: String
     ) {
         viewModelScope.launch {
@@ -48,6 +50,8 @@ class AddServiceViewModel @Inject constructor(
                         method = method,
                         body = body,
                         sha1Certificate = sha1Certificate,
+                        responsePattern = responsePattern,
+                        useRegexPattern = useRegexPattern,
                         groupName = groupName
                     )
                 )

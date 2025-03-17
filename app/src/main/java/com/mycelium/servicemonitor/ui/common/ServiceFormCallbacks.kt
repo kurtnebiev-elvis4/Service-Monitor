@@ -12,6 +12,8 @@ interface ServiceFormCallbacks {
     fun onMethodChange(value: String)
     fun onBodyChange(value: String)
     fun onSha1CertificateChange(value: String)
+    fun onResponsePatternChange(value: String)
+    fun onUseRegexPatternChange(value: Boolean)
     fun onGroupNameChange(value: String)
     
     // Action callbacks
@@ -33,6 +35,8 @@ abstract class ServiceFormCallbacksImpl : ServiceFormCallbacks {
     override fun onMethodChange(value: String) {}
     override fun onBodyChange(value: String) {}
     override fun onSha1CertificateChange(value: String) {}
+    override fun onResponsePatternChange(value: String) {}
+    override fun onUseRegexPatternChange(value: Boolean) {}
     override fun onGroupNameChange(value: String) {}
     override fun onSave() {}
     override fun onCancel() {}

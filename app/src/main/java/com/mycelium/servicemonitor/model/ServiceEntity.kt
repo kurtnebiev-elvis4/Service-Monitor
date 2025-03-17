@@ -18,6 +18,10 @@ data class ServiceEntity(
     @ColumnInfo(defaultValue = "")
     val body: String = "",
     @ColumnInfo(defaultValue = "")
+    val responsePattern: String = "",
+    @ColumnInfo(defaultValue = "0")
+    val useRegexPattern: Boolean = false,
+    @ColumnInfo(defaultValue = "")
     val sha1Certificate: String = "",
     val status: String,
     val lastChecked: Long,

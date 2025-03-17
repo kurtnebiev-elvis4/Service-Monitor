@@ -13,6 +13,8 @@ data class Service(
     val headers: String = "",
     val method: String = "",
     val body: String = "",
+    val responsePattern: String = "",
+    val useRegexPattern: Boolean = false,
 
     val sha1Certificate: String = "",
     val position: Int = 0,

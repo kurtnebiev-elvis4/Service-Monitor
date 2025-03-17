@@ -42,6 +42,8 @@ fun EditServiceScreen(
     var method by remember { mutableStateOf(service.method) }
     var body by remember { mutableStateOf(service.body) }
     var sha1Certificate by remember { mutableStateOf(service.sha1Certificate) }
+    var responsePattern by remember { mutableStateOf(service.responsePattern) }
+    var useRegexPattern by remember { mutableStateOf(service.useRegexPattern) }
     var groupName by remember { mutableStateOf(service.groupName) }
     var headersList by remember { mutableStateOf(parseHeaders(service.headers)) }
     var showHeaderDialog by remember { mutableStateOf(false) }
@@ -64,6 +66,8 @@ fun EditServiceScreen(
         method = method,
         body = body,
         sha1Certificate = sha1Certificate,
+        responsePattern = responsePattern,
+        useRegexPattern = useRegexPattern,
         groupName = groupName,
         availableGroups = availableGroups,
         headersList = headersList,
@@ -80,6 +84,8 @@ fun EditServiceScreen(
         override fun onMethodChange(value: String) { method = value }
         override fun onBodyChange(value: String) { body = value }
         override fun onSha1CertificateChange(value: String) { sha1Certificate = value }
+        override fun onResponsePatternChange(value: String) { responsePattern = value }
+        override fun onUseRegexPatternChange(value: Boolean) { useRegexPattern = value }
         override fun onGroupNameChange(value: String) { groupName = value }
         override fun onAddHeader() { showHeaderDialog = true }
         override fun onRemoveHeader(header: Pair<String, String>) { 
@@ -97,6 +103,8 @@ fun EditServiceScreen(
                     method = method,
                     body = body,
                     sha1Certificate = sha1Certificate,
+                    responsePattern = responsePattern,
+                    useRegexPattern = useRegexPattern,
                     groupName = groupName
                 )
             )
