@@ -7,4 +7,6 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.room) apply false
     kotlin("plugin.serialization") version "2.1.10"
+
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }

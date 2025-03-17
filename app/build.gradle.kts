@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.room)
     id("kotlin-kapt")
     kotlin("plugin.serialization")
+
+    id("com.google.gms.google-services")
 }
 
 ksp {
@@ -23,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mycelium.servicemonitor"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 10002
         versionName = "1.0.2"
@@ -95,9 +97,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -105,4 +107,8 @@ dependencies {
     implementation(libs.hilt.work)
     ksp(libs.androidx.hilt.hilt.compiler)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 }
