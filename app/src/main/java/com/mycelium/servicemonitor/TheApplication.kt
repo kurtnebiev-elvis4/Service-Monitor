@@ -1,8 +1,11 @@
 package com.mycelium.servicemonitor
 
 import android.app.Application
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.mycelium.servicemonitor.worker.ServiceCheckScheduler
 import dagger.Module
 import dagger.Provides
@@ -30,6 +33,24 @@ class TheApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         scheduler.scheduleAllServiceChecks()
+
+        arrayOf(
+            "all_users",
+            "new_orders",
+            "card_issued",
+            "provider_balances",
+            "daily_summary",
+            "admin_alerts"
+        ).forEach {
+            Firebase.messaging.subscribeToTopic(it)
+                .addOnCompleteListener { task ->
+                    var msg = "Subscribed"
+                    if (!task.isSuccessful) {
+                        msg = "Subscribe failed"
+                    }
+                    Log.d("!!!!", msg)
+                }
+        }
     }
 }
 
