@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.mycelium.servicemonitor.MainActivity
+import com.mycelium.servicemonitor.R
 
 class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
@@ -24,10 +25,12 @@ class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         Log.i("ServiceMonitorFirebaseMessagingService", "onMessageReceived")
 
+        val from = remoteMessage.from ?: null
         // Handle notification messages
         remoteMessage.notification?.let { notification ->
             val title = notification.title ?: "Service Monitor"
             val message = notification.body ?: "New notification"
+
 
             // Create notification channel for Android O and above
             createNotificationChannel()
@@ -45,8 +48,8 @@ class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
 
             // Build notification
             val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-//                .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(title)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(listOfNotNull(title, from).joinToString())
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
