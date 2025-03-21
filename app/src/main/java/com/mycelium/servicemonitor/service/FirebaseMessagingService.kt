@@ -12,7 +12,16 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.mycelium.servicemonitor.MainActivity
 import com.mycelium.servicemonitor.R
+import com.mycelium.servicemonitor.model.NotificationEntity
+import com.mycelium.servicemonitor.repository.NotificationRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         private const val CHANNEL_ID = "service_monitor_channel"
@@ -20,17 +29,31 @@ class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
         private const val CHANNEL_DESCRIPTION = "Notifications for service status changes"
     }
 
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         Log.i("ServiceMonitorFirebaseMessagingService", "onMessageReceived")
 
-        val from = remoteMessage.from ?: null
+        val from = remoteMessage.from
         // Handle notification messages
         remoteMessage.notification?.let { notification ->
             val title = notification.title ?: "Service Monitor"
             val message = notification.body ?: "New notification"
 
+            // Save notification to database
+            serviceScope.launch {
+                notificationRepository.insert(
+                    NotificationEntity(
+                        title = title,
+                        message = message,
+                        from = from
+                    )
+                )
+            }
 
             // Create notification channel for Android O and above
             createNotificationChannel()
@@ -62,17 +85,15 @@ class ServiceMonitorFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = CHANNEL_DESCRIPTION
-            }
-
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = CHANNEL_DESCRIPTION
         }
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 } 

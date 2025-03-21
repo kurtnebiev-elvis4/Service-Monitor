@@ -3,6 +3,7 @@ package com.mycelium.servicemonitor.database
 import android.content.Context
 import androidx.room.Room
 import com.mycelium.servicemonitor.repository.CheckHistoryDao
+import com.mycelium.servicemonitor.repository.NotificationDao
 import com.mycelium.servicemonitor.repository.ServiceDao
 import dagger.Module
 import dagger.Provides
@@ -32,5 +33,9 @@ object DatabaseModule {
     @Provides
     fun provideHistoryDao(database: AppDatabase): CheckHistoryDao =
         database.historyDao()
+
+    @Provides
+    fun provideNotificationDao(database: AppDatabase): NotificationDao =
+        database.notificationDao()
 
 }

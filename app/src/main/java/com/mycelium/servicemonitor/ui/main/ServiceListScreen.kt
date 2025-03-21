@@ -401,6 +401,13 @@ fun ListTopBar(
                     }
                 )
                 DropdownMenuItem(
+                    text = { Text("Notifications") },
+                    onClick = {
+                        menuExpanded = false
+                        openPage(Page.NOTIFICATIONS.name)
+                    }
+                )
+                DropdownMenuItem(
                     text = { Text("Remove All") },
                     onClick = {
                         menuExpanded = false
