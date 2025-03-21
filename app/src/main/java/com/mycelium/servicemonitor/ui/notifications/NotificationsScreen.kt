@@ -27,29 +27,11 @@ fun NotificationsScreen(
 ) {
     val uiState by viewModel.provideUIState().collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notifications") },
-                actions = {
-                    if (uiState.notifications.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.clearNotifications() }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Clear notifications")
-                        }
-                    }
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize()) {
         when {
             uiState.loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -57,9 +39,7 @@ fun NotificationsScreen(
             }
             uiState.error.isNotEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -71,9 +51,7 @@ fun NotificationsScreen(
             }
             uiState.notifications.isEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("No notifications")
@@ -83,8 +61,7 @@ fun NotificationsScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp)
+                        .padding(16.dp)
                 ) {
                     items(uiState.notifications) { notification ->
                         NotificationItem(notification)

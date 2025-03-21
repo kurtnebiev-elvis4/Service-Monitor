@@ -59,17 +59,11 @@ fun HistoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(uiState: HistoryUIState) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("History") })
-        }
-    ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize()) {
         when {
             uiState.loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -78,9 +72,7 @@ fun HistoryScreen(uiState: HistoryUIState) {
 
             uiState.historyItems.isEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = "No history available")
@@ -89,7 +81,6 @@ fun HistoryScreen(uiState: HistoryUIState) {
 
             else -> {
                 LazyColumn(
-                    contentPadding = paddingValues,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)

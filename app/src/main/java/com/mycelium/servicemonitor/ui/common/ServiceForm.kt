@@ -28,42 +28,13 @@ fun ServiceForm(
     callbacks: ServiceFormCallbacks,
     headerDialog: @Composable () -> Unit
 ) {
-
     // Local state to control dropdown expansion.
     val selectedInterval = state.intervalValue
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(state.title) },
-                navigationIcon = {
-                    IconButton(onClick = { callbacks.onCancel() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier.imePadding(),
-                onClick = { if (state.isValid) callbacks.onSave() },
-                containerColor = if (state.isValid) MaterialTheme.colorScheme.primary else Color.Gray
-            ) {
-                if (state.saving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Icon(Icons.Filled.Check, contentDescription = "Save")
-                }
-            }
-        }
-    ) { padding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .padding(padding)
+                .fillMaxSize()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -312,6 +283,25 @@ fun ServiceForm(
             }
             Spacer(modifier = Modifier.height(64.dp))
         }
+
+        FloatingActionButton(
+            onClick = { if (state.isValid) callbacks.onSave() },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = if (state.isValid) MaterialTheme.colorScheme.primary else Color.Gray
+        ) {
+            if (state.saving) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(Icons.Filled.Check, contentDescription = "Save")
+            }
+        }
     }
+
     headerDialog()
 }

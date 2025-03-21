@@ -74,77 +74,69 @@ fun ServiceListScreen(
     openPage: (String) -> Unit
 ) {
     val uiState by viewModel.provideUIState().collectAsState()
-    
+
     // Track collapsed state for each group
     val collapsedGroups = remember { mutableStateMapOf<String, Boolean>() }
-    
-    Scaffold(
-        topBar = {
-            ListTopBar(viewModel, openPage)
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddServiceClick) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Service"
-                )
-            }
-        }
-    ) { paddingValues ->
+
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             // Group active services by their groupName
             val activeServices = uiState.services.filter { !it.archived }
             val groupedServices = activeServices.groupBy { it.groupName.ifEmpty { "Ungrouped" } }
                 .toSortedMap()
-            
+
             // For each group, show group header and services
             groupedServices.forEach { (groupName, services) ->
-                // Initialize collapsed state for new groups
                 if (!collapsedGroups.containsKey(groupName)) {
                     collapsedGroups[groupName] = false
                 }
-                
+
                 item {
                     GroupHeader(
                         groupName = groupName,
                         isCollapsed = collapsedGroups[groupName] ?: false,
-                        onToggleCollapse = { collapsedGroups[groupName] = !(collapsedGroups[groupName] ?: false) }
+                        onToggleCollapse = {
+                            collapsedGroups[groupName] = !(collapsedGroups[groupName] ?: false)
+                        }
                     )
                 }
-                
-                // Only show services if group is not collapsed
-                if (collapsedGroups[groupName] != true) {
-                    items(services) { service ->
-                        ServiceListItem(
-                            service = service,
-                            onMoveUp = { viewModel.moveUp(it) },
-                            onCheck = { viewModel.checkService(it) },
-                            onEdit = { onEditServiceClick(it.id) },
-                            onArchive = { viewModel.archiveService(it) },
-                            onUnarchive = { viewModel.unarchiveService(it) },
-                            onRemove = { viewModel.removeService(it) },
-                            onUpdateGroup = { service, groupName -> 
-                                viewModel.updateServiceGroup(service, groupName) 
-                            },
-                            availableGroups = uiState.groups
-                        )
+
+                if (!(collapsedGroups[groupName] ?: false)) {
+                    services.forEach { service ->
+                        item {
+                            ServiceListItem(
+                                service = service,
+                                onMoveUp = { viewModel.moveUp(service) },
+                                onCheck = { viewModel.checkService(service) },
+                                onEdit = { onEditServiceClick(service.id) },
+                                onArchive = { viewModel.archiveService(service) },
+                                onUnarchive = { viewModel.unarchiveService(service) },
+                                onRemove = { viewModel.removeService(service) },
+                                onUpdateGroup = { service, newGroup ->
+                                    viewModel.updateServiceGroup(
+                                        service,
+                                        newGroup
+                                    )
+                                },
+                                availableGroups = uiState.groups
+                            )
+                        }
                     }
                 }
             }
-            
-            // Show archived services
+
+            // Show archived services section if there are any
             val archivedServices = uiState.services.filter { it.archived }
             if (archivedServices.isNotEmpty()) {
                 // Track collapsed state for archive section
                 if (!collapsedGroups.containsKey("Archive")) {
                     collapsedGroups["Archive"] = false
                 }
-                
+
                 item {
                     Row(
                         modifier = Modifier
@@ -160,9 +152,9 @@ fun ServiceListScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                         Icon(
-                            imageVector = if (collapsedGroups["Archive"] == true) 
-                                Icons.Default.KeyboardArrowDown 
-                            else 
+                            imageVector = if (collapsedGroups["Archive"] == true)
+                                Icons.Default.KeyboardArrowDown
+                            else
                                 Icons.Default.KeyboardArrowUp,
                             contentDescription = if (collapsedGroups["Archive"] == true) "Expand" else "Collapse"
                         )
@@ -174,29 +166,42 @@ fun ServiceListScreen(
                             .background(MaterialTheme.colorScheme.tertiary)
                     )
                 }
-                
-                if (collapsedGroups["Archive"] != true) {
-                    items(archivedServices) { service ->
-                        ServiceListItem(
-                            service = service,
-                            onMoveUp = { viewModel.moveUp(it) },
-                            onCheck = { viewModel.checkService(it) },
-                            onEdit = { onEditServiceClick(it.id) },
-                            onArchive = { viewModel.archiveService(it) },
-                            onUnarchive = { viewModel.unarchiveService(it) },
-                            onRemove = { viewModel.removeService(it) },
-                            onUpdateGroup = { service, groupName -> 
-                                viewModel.updateServiceGroup(service, groupName) 
-                            },
-                            availableGroups = uiState.groups
-                        )
+
+                if (!(collapsedGroups["Archive"] ?: false)) {
+                    archivedServices.forEach { service ->
+                        item {
+                            ServiceListItem(
+                                service = service,
+                                onMoveUp = { viewModel.moveUp(service) },
+                                onCheck = { viewModel.checkService(service) },
+                                onEdit = { onEditServiceClick(service.id) },
+                                onArchive = { viewModel.archiveService(service) },
+                                onUnarchive = { viewModel.unarchiveService(service) },
+                                onRemove = { viewModel.removeService(service) },
+                                onUpdateGroup = { service, newGroup ->
+                                    viewModel.updateServiceGroup(
+                                        service,
+                                        newGroup
+                                    )
+                                },
+                                availableGroups = uiState.groups
+                            )
+                        }
                     }
                 }
             }
-            
-            item {
-                Spacer(Modifier.height(64.dp))
-            }
+        }
+
+        FloatingActionButton(
+            onClick = onAddServiceClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Service"
+            )
         }
     }
 }
@@ -221,9 +226,9 @@ fun GroupHeader(
                 style = MaterialTheme.typography.titleLarge
             )
             Icon(
-                imageVector = if (isCollapsed) 
-                    Icons.Default.KeyboardArrowDown 
-                else 
+                imageVector = if (isCollapsed)
+                    Icons.Default.KeyboardArrowDown
+                else
                     Icons.Default.KeyboardArrowUp,
                 contentDescription = if (isCollapsed) "Expand" else "Collapse"
             )
@@ -265,7 +270,7 @@ fun GroupSelectionDialog(
 ) {
     var newGroup by remember { mutableStateOf("") }
     var isCreatingNew by remember { mutableStateOf(false) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Select Group") },
@@ -294,7 +299,7 @@ fun GroupSelectionDialog(
                             Text("No Group")
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         availableGroups.forEach { group ->
                             Button(
                                 onClick = { onGroupSelected(group) },
@@ -305,9 +310,9 @@ fun GroupSelectionDialog(
                                 Text(group)
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         Button(
                             onClick = { isCreatingNew = true },
                             modifier = Modifier.fillMaxWidth()
@@ -456,10 +461,10 @@ fun ServiceListItem(
                             .clip(shape = MaterialTheme.shapes.small)
                             .background(
                                 color =
-                                if (service.archived) Color.Gray
-                                else if (service.status == "ok") Color.Green
-                                else if (service.lastChecked == 0L) Color.Gray
-                                else Color.Red
+                                    if (service.archived) Color.Gray
+                                    else if (service.status == "ok") Color.Green
+                                    else if (service.lastChecked == 0L) Color.Gray
+                                    else Color.Red
                             )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -571,7 +576,7 @@ fun ServiceListItem(
                 )
             }
         }
-        
+
         if (showGroupSelectionDialog) {
             GroupSelectionDialog(
                 currentGroup = service.groupName,
